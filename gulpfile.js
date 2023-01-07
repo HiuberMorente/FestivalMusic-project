@@ -6,13 +6,16 @@ const plumber = require("gulp-plumber");
 const autoprefixer = require("autoprefixer");
 const cssnano = require("cssnano");
 const postcss = require("gulp-postcss");
-const sourcemaps = require('gulp-sourcemaps');
+const sourcemaps = require("gulp-sourcemaps");
 
 //*Image dependence
 const cache = require("gulp-cache");
 const imagemin = require("gulp-imagemin");
 const webp = require("gulp-webp");
 const avif = require("gulp-avif");
+
+//* JavaScript
+const terser = require("gulp-terser-js");
 
 function css(done) {
   src("src/scss/**/*.scss") // identificar el archivo de SASS
@@ -44,7 +47,9 @@ function webpVersion(done) {
     quality: 50,
   };
 
-  src("src/img/**/*.{png,jpg}").pipe(webp(options)).pipe(dest("build/img"));
+  src("src/img/**/*.{png,jpg}")
+    .pipe(webp(options))
+    .pipe(dest("build/img"));
 
   done();
 }
@@ -54,14 +59,20 @@ function avifVersion(done) {
     quality: 50,
   };
 
-  src("src/img/**/*.{png,jpg}").pipe(avif(options)).pipe(dest("build/img"));
+  src("src/img/**/*.{png,jpg}")
+    .pipe(avif(options))
+    .pipe(dest("build/img"));
 
   done();
 }
 
 //js
 function javascript(done) {
-  src("src/js/**/*.js").pipe(dest("build/js"));
+  src("src/js/**/*.js")
+    .pipe(sourcemaps.init())
+    .pipe(terser())
+    .pipe(sourcemaps.write("."))
+    .pipe(dest("build/js"));
 
   done();
 }
